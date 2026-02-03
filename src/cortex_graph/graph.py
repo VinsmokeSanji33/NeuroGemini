@@ -11,8 +11,8 @@ from typing import Any
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
-from src.langgraph.state import CortexState, create_initial_state
-from src.langgraph.nodes import (
+from src.cortex_graph.state import CortexState, create_initial_state
+from src.cortex_graph.nodes import (
     risk_assessment_node,
     reflex_layer_node,
     cerebral_layer_node,

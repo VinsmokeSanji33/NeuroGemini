@@ -28,7 +28,7 @@ services:
     networks:
       - cortex-network
     healthcheck:
-      test: ["CMD", "python", "-c", "from src.langgraph.graph import get_cortex_state_machine; get_cortex_state_machine()"]
+      test: ["CMD", "python", "-c", "from src.cortex_graph.graph import get_cortex_state_machine; get_cortex_state_machine()"]
       interval: 30s
       timeout: 10s
       retries: 3

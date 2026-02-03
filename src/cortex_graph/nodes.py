@@ -11,7 +11,7 @@ Implements the processing nodes for the vision state machine:
 import logging
 from typing import Any
 
-from src.langgraph.state import (
+from src.cortex_graph.state import (
     CortexState,
     Detection,
     CAIRMetrics,
@@ -129,6 +129,7 @@ def reflex_layer_node(state: CortexState) -> dict[str, Any]:
     updated_signatures = previous_signatures.copy()
     if new_signature:
         updated_signatures.append(new_signature)
+        logger.info(f"Thought signature captured: {new_signature.get('signature_id', 'unknown')} (Flash, minimal thinking)")
         if len(updated_signatures) > 10:
             updated_signatures = updated_signatures[-10:]
     
@@ -179,6 +180,7 @@ def cerebral_layer_node(state: CortexState) -> dict[str, Any]:
     updated_signatures = previous_signatures.copy()
     if new_signature:
         updated_signatures.append(new_signature)
+        logger.info(f"Thought signature captured: {new_signature.get('signature_id', 'unknown')} (Pro, high thinking)")
         if len(updated_signatures) > 10:
             updated_signatures = updated_signatures[-10:]
     

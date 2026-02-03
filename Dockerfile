@@ -57,6 +57,6 @@ RUN mkdir -p /app/logs && chown cortex:cortex /app/logs
 USER cortex
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "from src.langgraph.graph import get_cortex_state_machine; get_cortex_state_machine()" || exit 1
+    CMD python -c "from src.cortex_graph.graph import get_cortex_state_machine; get_cortex_state_machine()" || exit 1
 
 CMD ["python", "-m", "dora", "up", "--config", "dataflow.yaml"]

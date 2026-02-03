@@ -12,11 +12,36 @@ Flow:
 
 import time
 import uuid
+import json
 import logging
+from pathlib import Path
 from typing import Any
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
+
+_thought_logger = None
+_thought_log_file = None
+
+
+def get_thought_logger():
+    """Get or create dedicated thought signature logger."""
+    global _thought_logger, _thought_log_file
+    
+    if _thought_logger is None:
+        log_dir = Path("logs")
+        log_dir.mkdir(exist_ok=True)
+        _thought_log_file = log_dir / "thought_signatures.jsonl"
+        
+        _thought_logger = logging.getLogger("thought_signatures")
+        _thought_logger.setLevel(logging.INFO)
+        
+        handler = logging.FileHandler(_thought_log_file, mode="a", encoding="utf-8")
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        _thought_logger.addHandler(handler)
+        _thought_logger.propagate = False
+    
+    return _thought_logger
 
 
 @dataclass
@@ -127,9 +152,25 @@ class ThoughtSignatureManager:
         
         self._signature_cache[signature.signature_id] = signature
         
-        logger.info(f"Extracted thought signature: {signature.signature_id}")
+        logger.info(f"Extracted thought signature: {signature.signature_id} (model: {model_version}, level: {thinking_level})")
         
-        return signature.to_dict()
+        thought_content_str = str(signature.content)[:500] if signature.content else "None"
+        logger.debug(f"Thought content preview: {thought_content_str}...")
+        
+        thought_dict = signature.to_dict()
+        
+        thought_logger = get_thought_logger()
+        log_entry = {
+            "timestamp": time.time(),
+            "signature_id": signature.signature_id,
+            "model_version": model_version,
+            "thinking_level": thinking_level,
+            "content": signature.content,
+            "frame_context": frame_context,
+        }
+        thought_logger.info(json.dumps(log_entry, default=str))
+        
+        return thought_dict
     
     def build_conversation_with_signatures(
         self,

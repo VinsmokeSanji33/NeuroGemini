@@ -37,12 +37,29 @@ RTSP_URL=rtsp://your_phone_ip:5554/live
 
 Optional variables:
 ```
-TARGET_FPS=10
-FRAME_WIDTH=640
-FRAME_HEIGHT=480
+TARGET_FPS=2
+FRAME_WIDTH=320
+FRAME_HEIGHT=240
 CAIR_THRESHOLD=0.85
+FRAME_SKIP=5
+MIN_API_INTERVAL=4.0
+MOTION_THRESHOLD=0.1
+ENABLE_MOTION_DETECTION=true
 LANGSMITH_API_KEY=your_langsmith_key
 ```
+
+### API Rate Limiting
+
+The system includes aggressive optimizations to minimize API calls:
+
+- **Frame Skipping**: Only processes every Nth frame (default: 5)
+- **Motion Detection**: Skips processing when scene is static
+- **Minimum Interval**: Enforces 4+ seconds between API calls
+- **Lower Resolution**: 320x240 reduces token count
+- **Lower FPS**: 2 FPS capture rate
+- **Daily Limit Tracking**: Stops at 1400/1500 daily requests
+
+These settings reduce API usage by ~95% while maintaining safety-critical detection.
 
 ## Deployment
 
@@ -126,6 +143,17 @@ Logs are stored in `./logs/` and include:
 - CAIR metric calculations
 - Model routing decisions
 - Audio feedback triggers
+- **Thought signatures** (agent reasoning) in `thought_signatures.jsonl`
+
+View thought signatures:
+```bash
+python view_thoughts.py
+```
+
+Thought signatures capture the internal reasoning process from Gemini models:
+- **Reflex Layer** (Flash): Minimal thinking for fast responses
+- **Cerebral Layer** (Pro): High thinking for complex scenarios
+- Each signature includes model reasoning, frame context, and timestamp
 
 ### LangSmith Tracing
 

@@ -12,7 +12,7 @@ from typing import Any
 import pyarrow as pa
 from dora import Node
 
-from src.langgraph.graph import get_cortex_state_machine, CortexStateMachine
+from src.cortex_graph.graph import get_cortex_state_machine, CortexStateMachine
 from src.mcp.server import get_mcp_server
 
 logging.basicConfig(level=logging.INFO)
