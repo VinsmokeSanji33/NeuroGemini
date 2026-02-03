@@ -1,0 +1,69 @@
+services:
+  synthetic-cortex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: synthetic-cortex
+    restart: unless-stopped
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - RTSP_URL=${RTSP_URL:-rtsp://host.docker.internal:5554/live}
+      - TARGET_FPS=${TARGET_FPS:-10}
+      - FRAME_WIDTH=${FRAME_WIDTH:-640}
+      - FRAME_HEIGHT=${FRAME_HEIGHT:-480}
+      - CAIR_THRESHOLD=${CAIR_THRESHOLD:-0.85}
+      - DEFAULT_RISK_LEVEL=${DEFAULT_RISK_LEVEL:-low}
+      - AUDIO_DEVICE=${AUDIO_DEVICE:-default}
+      - SAMPLE_RATE=${SAMPLE_RATE:-44100}
+      - ENABLE_TTS=${ENABLE_TTS:-false}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-synthetic-cortex}
+    volumes:
+      - ./logs:/app/logs
+      - ./configs:/app/configs:ro
+    devices:
+      - /dev/snd:/dev/snd
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - cortex-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "from src.langgraph.graph import get_cortex_state_machine; get_cortex_state_machine()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: synthetic-cortex-mcp
+    restart: unless-stopped
+    command: ["python", "-m", "src.mcp.server"]
+    environment:
+      - MCP_SERVER_PORT=${MCP_SERVER_PORT:-8080}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    ports:
+      - "${MCP_SERVER_PORT:-8080}:8080"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - cortex-network
+    depends_on:
+      synthetic-cortex:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "from src.mcp.server import get_mcp_server; get_mcp_server()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  cortex-network:
+    driver: bridge

@@ -1,0 +1,1 @@
+"""Synthetic Cortex Vision System."""

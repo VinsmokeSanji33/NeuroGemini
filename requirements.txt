@@ -1,0 +1,16 @@
+dora-rs==0.3.6
+langgraph==0.2.60
+langchain-google-genai==2.0.8
+langsmith==0.2.10
+google-generativeai==0.8.4
+opencv-python-headless==4.10.0.84
+pyarrow==18.1.0
+pydub==0.25.1
+numpy==2.2.2
+pydantic==2.10.5
+fastapi==0.115.6
+uvicorn==0.34.0
+python-dotenv==1.0.1
+mcp==1.3.0
+aiohttp==3.11.11
+pyaudio==0.2.14

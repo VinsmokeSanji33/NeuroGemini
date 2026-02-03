@@ -1,0 +1,56 @@
+cair:
+  confidence_threshold: 0.85
+  escalation_threshold: 0.70
+  critical_threshold: 0.50
+
+risk_classification:
+  high_risk_objects:
+    - vehicle
+    - bicycle
+    - motorcycle
+    - person_running
+    - construction
+    - water
+    - stairs
+    - edge
+    - hole
+  medium_risk_objects:
+    - person
+    - animal
+    - door
+    - furniture
+  low_risk_objects:
+    - wall
+    - floor
+    - ceiling
+    - static_object
+
+model_routing:
+  reflex:
+    model: gemini-2.0-flash
+    thinking_level: minimal
+    media_resolution: low
+    max_latency_ms: 200
+  cerebral:
+    model: gemini-2.0-pro
+    thinking_level: high
+    media_resolution: high
+    max_latency_ms: 2000
+
+audio_feedback:
+  tone_frequencies:
+    vehicle: 800
+    person: 600
+    obstacle: 400
+    hazard: 1000
+    edge: 1200
+  volume_mapping:
+    min_confidence: 0.5
+    max_confidence: 1.0
+    min_volume: 0.3
+    max_volume: 1.0
+
+metrics:
+  window_size_seconds: 60
+  log_interval_seconds: 10
+  langsmith_project: synthetic-cortex

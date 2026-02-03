@@ -1,0 +1,53 @@
+nodes:
+  - id: camera
+    operator:
+      python: src/nodes/camera_operator.py
+    inputs:
+      tick: dora/timer/millis/100
+    outputs:
+      - frame
+      - metadata
+    env:
+      RTSP_URL: ${RTSP_URL:-rtsp://192.168.1.100:5554/live}
+      TARGET_FPS: ${TARGET_FPS:-10}
+      FRAME_WIDTH: ${FRAME_WIDTH:-640}
+      FRAME_HEIGHT: ${FRAME_HEIGHT:-480}
+
+  - id: cortex
+    operator:
+      python: src/nodes/cortex_operator.py
+    inputs:
+      frame: camera/frame
+      metadata: camera/metadata
+      halt_signal: feedback/halt_request
+    outputs:
+      - detections
+      - state_update
+      - clarification_request
+    env:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      CAIR_THRESHOLD: ${CAIR_THRESHOLD:-0.85}
+      DEFAULT_RISK_LEVEL: ${DEFAULT_RISK_LEVEL:-low}
+
+  - id: feedback
+    operator:
+      python: src/nodes/feedback_operator.py
+    inputs:
+      detections: cortex/detections
+      clarification_request: cortex/clarification_request
+    outputs:
+      - audio_cue
+      - halt_request
+    env:
+      AUDIO_DEVICE: ${AUDIO_DEVICE:-default}
+      SAMPLE_RATE: ${SAMPLE_RATE:-44100}
+      ENABLE_TTS: ${ENABLE_TTS:-false}
+
+communication:
+  type: shared_memory
+  serialization: arrow
+  buffer_size_mb: 128
+
+runtime:
+  log_level: info
+  watchdog_timeout_ms: 5000
